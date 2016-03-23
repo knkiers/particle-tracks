@@ -11,9 +11,8 @@ from authentication.views import LoginView
 from authentication.views import LogoutView
 
 from django.contrib import admin
-#from adminplus.sites import AdminSitePlus
-
-#admin.site = AdminSitePlus()
+from rest_framework.decorators import api_view
+from decays import views
 
 admin.autodiscover()
 
@@ -27,5 +26,7 @@ urlpatterns = patterns(
     url(r'^api/v1/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/v1/auth/logout/$', LogoutView.as_view(), name='logout'),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^api/v1/hello/$', views.hello_world),
+    url(r'^api/v1/decaytypelist/$', views.decay_type_list),
     url('^.*$', IndexView.as_view(), name='index'),
 )

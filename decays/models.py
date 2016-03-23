@@ -1,4 +1,5 @@
 from django.db import models
+import math, random
 
 class Particle(models.Model):
     """
@@ -66,5 +67,97 @@ class DecayType(models.Model):
     def __unicode__(self):
         return '{0}'.format(self.name)
 
+    def is_two_body_decay(self):
+        if self.daughter_three == None:
+            return True
+        else:
+            return False
+    
 
 
+    def rand_momentum_config_parent_cm(self, xi_lab, theta_lab):
+        """
+        For a given DecayType object, determines a random configuration of momenta
+        and energies for the final state particles in the parent center of mass, then 
+        boosts by xi_lab and rotates by theta_lab.
+        """
+        if self.is_two_body_decay():
+            costheta = -1+2*random.random()
+            theta = math.acos(costheta)
+            
+            m_a = self.parent.mass
+            m_b = self.daughter_one.mass
+            m_c = self.daughter_two.mass
+            
+            p_b = momentum(m_a, m_b, m_c)
+            energy_b = energy(m_b, p_b)
+            p_c = p_b
+            energy_c = energy(m_c, p_c)
+
+            coords_a = [m_a, 0, 0]
+            coords_b = [energy_b, 0, p_b]
+            coords_c = [energy_c, 0, -p_b]
+
+            # boost and rotate pa relative to the lab
+
+            coords_a = boost_then_rotate(xi_lab, theta_lab, coords_a)
+            
+            # now rotate pb and pc (in the cm) and then boost and rotate relative to the lab
+            
+            coords_b = boost_then_rotate(xi_lab, theta_lab,
+                                         boost_then_rotate(0, theta, coords_b))
+            coords_c = boost_then_rotate(xi_lab, theta_lab,
+                                         boost_then_rotate(0, theta, coords_c))
+
+            print coords_a
+            print coords_b
+            print coords_c
+
+            print [coords_b[0]+coords_c[0],coords_b[1]+coords_c[1],coords_b[2]+coords_c[2]]
+
+            data_dict = {'is_two_body_decay': True,
+                         'xi_lab': xi_lab,
+                         'theta_lab': theta_lab,
+                         'p_a': coords_a,
+                         'p_b': coords_b,
+                         'p_c': coords_c}                         
+            
+            return data_dict
+
+
+def lambda_func(x, y, z):
+    """
+    Utility function used to find magnitude of the momenta of two particles 
+    in the rest frame of the parent particle.
+    """
+    return x**2+y**2+z**2-2*(x*y+x*z+y*z)
+
+def momentum(m_a, m_b, m_c):
+    """
+    Calculates the momenta of b and c in the rest from of a, for a -> b + c.
+    """
+    return math.sqrt(lambda_func(m_a**2, m_b**2, m_c**2))/2/m_a
+
+def energy(m, p):
+    """
+    Calculates the energy of a particle that has mass m and momentum p.
+    """
+    return math.sqrt(m**2+p**2)
+
+def boost_then_rotate(xi, theta, coord_list):
+    """
+    Performs a boost (boost parameter xi) in the y direction, 
+    followed by a rotation by polar angle theta away from the 
+    y axis, in the x-y plane.  coord_list is of the form [energy, x, y].
+    """
+    boost_matrix = [[math.cosh(xi), 0, math.sinh(xi)],
+                    [math.sinh(xi)*math.sin(theta), math.cos(theta), math.cosh(xi)*math.sin(theta)],
+                    [math.sinh(xi)*math.cos(theta), -math.sin(theta), math.cosh(xi)*math.cos(theta)]]
+
+    boosted_coord_list = [0, 0, 0]
+
+    for j in range(len(coord_list)):
+        for i in range(len(boost_matrix[j])):
+            boosted_coord_list[i] += boost_matrix[i][j]*coord_list[j]
+
+    return boosted_coord_list
