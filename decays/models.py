@@ -124,6 +124,91 @@ class DecayType(models.Model):
             
             return data_dict
 
+        else:
+            # in this case need to do an extra boost and rotation....
+            costheta = -1+2*random.random()
+            theta = math.acos(costheta)
+
+            costheta2 = -1+2*random.random()
+            theta2 = math.acos(costheta2)
+            
+            m_a = self.parent.mass
+            m_b = self.daughter_one.mass
+            m_c = self.daughter_two.mass
+            m_d = self.daughter_three.mass
+
+            # the kinematics are the following:
+            # a -> b + (c + d)
+            # ...where (c + d) have invariant mass M2; so we regard this first as
+            # a -> b + M2, then we boost to the M2 rest frame, and have
+            # M2 -> c + d
+            
+            m_min = m_c + m_d
+            m_max = m_a - m_b
+
+            # the following is the invariant mass of the (c + d) pseudoparticle
+            M2 = m_min+(m_max-m_min)*random.random()
+
+            # momentum of M2 and of b in the a rest frame:
+            P3 = momentum(m_a, m_b, M2)
+            # boost parameter to get to M2 cm from a cm:
+            xi_M2 = math.atanh(P3/energy(M2, P3))
+
+            # energy of b in the a rest frame:
+            energy_b = energy(m_b, P3)
+
+            # coords of a in its own rest frame
+            coords_a = [m_a, 0, 0]
+
+            # coords of b in the a rest frame (M2 goes in the +y direction, before being rotated; b in the -y direction):
+            coords_b = [energy_b, 0, -P3]
+
+            # momentum of c and d in the M2 rest frame:
+            P2 = momentum(M2, m_c, m_d)
+            # energy of c and d in the M2 rest frame:
+            energy_c = energy(m_c, P2)
+            energy_d = energy(m_d, P2)
+            
+            # coords of c and d in the M2 rest frame
+            coords_c = [energy_c, 0, P2]
+            coords_d = [energy_d, 0, -P2]
+
+            # boost and rotate pa relative to the lab
+
+            coords_a = boost_then_rotate(xi_lab, theta_lab, coords_a)
+            
+            # now rotate pb (in the cm) and then boost and rotate relative to the lab
+            
+            coords_b = boost_then_rotate(xi_lab, theta_lab,
+                                         boost_then_rotate(0, theta, coords_b))
+
+            # finally, rotate pc and pd (in the M2 cm), then boost and rotate, and do it again....
+            
+            coords_c = boost_then_rotate(xi_lab, theta_lab,
+                                         boost_then_rotate(xi_M2, theta,
+                                                           boost_then_rotate(0, theta2, coords_c)))
+            coords_d = boost_then_rotate(xi_lab, theta_lab,
+                                         boost_then_rotate(xi_M2, theta,
+                                                           boost_then_rotate(0, theta2, coords_d)))
+            
+            print coords_a
+            print coords_b
+            print coords_c
+            print coords_d
+
+            print [coords_b[0]+coords_c[0]+coords_d[0],coords_b[1]+coords_c[1]+coords_d[1],
+                   coords_b[2]+coords_c[2]+coords_d[2]]
+
+            data_dict = {'is_two_body_decay': False,
+                         'xi_lab': xi_lab,
+                         'theta_lab': theta_lab,
+                         'p_a': coords_a,
+                         'p_b': coords_b,
+                         'p_c': coords_c,
+                         'p_d': coords_d}                         
+            
+            return data_dict
+
 
 def lambda_func(x, y, z):
     """
