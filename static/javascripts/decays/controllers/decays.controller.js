@@ -9,12 +9,12 @@
 	.module('thinkster.decays.controllers')
 	.controller('EventController', EventController);
     
-    EventController.$inject = ['$scope', 'GenerateEvent'];
+    EventController.$inject = ['$scope', '$location', 'GenerateEvent', 'Authentication'];
 
     /**
      * @namespace EventController
      */
-    function EventController($scope, GenerateEvent) {
+    function EventController($scope, $location, GenerateEvent, Authentication) {
 	var vm = this;
 
 	activate();
@@ -25,8 +25,11 @@
 	 * @memberOf thinkster.layout.controllers.IndexController
 	 */
 	function activate() {
-	    GenerateEvent.get().then(eventSuccessFn, eventErrorFn);
-
+	    if (!Authentication.isAuthenticated()) {
+		$location.url('/login');
+	    } else {
+		GenerateEvent.get().then(eventSuccessFn, eventErrorFn);
+	    }
 	    /**
 	     * @name eventSuccessFn
 	     * @desc Update posts array on view
@@ -41,7 +44,7 @@
 	     * @desc Show snackbar with error
 	     */
 	    function eventErrorFn(data, status, headers, config) {
-//		Snackbar.error(data.error);
+		//		Snackbar.error(data.error);
 	    }
 	}
     }
