@@ -24,6 +24,10 @@
 	    controller: 'IndexController',
 	    controllerAs: 'vm',
 	    templateUrl: '/static/templates/layout/index.html'
+	}).when('/event', {
+	    controller: 'EventController',
+	    controllerAs: 'vm',
+	    templateUrl: '/static/templates/events/event.html'
 	}).when('/+:username', {
 	    controller: 'ProfileController',
 	    controllerAs: 'vm',

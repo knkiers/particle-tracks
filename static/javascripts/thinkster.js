@@ -7,7 +7,7 @@
 	    'thinkster.routes',
 	    'thinkster.authentication',
 	    'thinkster.layout',
-	    //'thinkster.posts',
+	    'thinkster.decays',
 	    //'thinkster.utils',
 	    //'thinkster.profiles'
 	]);

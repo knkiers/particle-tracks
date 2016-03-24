@@ -28,5 +28,6 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/v1/hello/$', views.hello_world),
     url(r'^api/v1/decaytypelist/$', views.decay_type_list),
+    url(r'^api/v1/generateevent/$', views.generate_random_event),
     url('^.*$', IndexView.as_view(), name='index'),
 )
