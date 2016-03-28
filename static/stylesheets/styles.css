@@ -1,0 +1,11 @@
+.btn-add-generate-event {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+btn-add-toggle-B-dirn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+}

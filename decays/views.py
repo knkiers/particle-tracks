@@ -31,9 +31,20 @@ def decay_type_list(request):
 @api_view(['GET'])
 def generate_random_event(request):
     """
-    Generate a random event.
+    Generate a random event.  b_field should be a number (strength of the B field in kG);
+    b_direction should be either 'in' or 'out'.
     """
 
+    # helpful page: http://stackoverflow.com/questions/150505/capturing-url-parameters-in-request-get
+    
+    b_field = request.GET.get('b_field','')
+    b_direction = request.GET.get('b_direction','')
+
+    print request.GET
+
+    print b_field
+    print b_direction
+    
     xi_lab = 0.5
     theta_lab = 1.234234234
     
@@ -45,6 +56,10 @@ def generate_random_event(request):
 
     decay_type = DecayType.objects.get(pk=pk)
     data = decay_type.rand_momentum_config_parent_cm(xi_lab, theta_lab)
+
+    # need to add in Bfield strength, B field direction...actually, NO...get that info from a service, which
+    # has to look at the cookie or something....  that's really nothing to do with the event itself!
+    
     data_json = json.dumps(data)
 
     print data_json

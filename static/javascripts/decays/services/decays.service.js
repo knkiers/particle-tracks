@@ -29,9 +29,16 @@
 	 * @desc Get an event
 	 * @returns {Promise}
 	 * @memberOf thinkster.decays.services.GenerateEvent
+	 * @reference http://stackoverflow.com/questions/13760070/
+         *                 angularjs-passing-data-to-http-get-request
 	 */
-	function get() {
-	    return $http.get('/api/v1/generateevent/');
+	function get(b_field, b_direction) {
+	    return $http.get('/api/v1/generateevent/',{
+		params: {
+		    b_field: b_field,
+		    b_direction: b_direction
+		}
+	    });
 	}
     }
 })();

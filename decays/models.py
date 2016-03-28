@@ -36,8 +36,12 @@ class AliasName(models.Model):
 class DecayType(models.Model):
     """
     A particular subatomic decay mode.  Notes: (i) can accommodate 1 -> 2
-    and 1 -> 3 types of decays; (ii) if a particle has an 'alias', then its
-    the particle's identity will be hidden from the user.
+    and 1 -> 3 types of decays; (ii) if a particle has an 'alias', then
+    the particle's identity will be hidden from the user; (iii) if a daughter
+    particle has a decay associated with it, then that particle can itself decay.
+
+    Probably should have abstracted out DecayProduct, or something, and had a many-to-many
+    relation to it...!  Ah well.
     """
     parent = models.ForeignKey(Particle, related_name = 'decay_types')
     # if parent_alias is blank, then there is no alias and the type of
@@ -48,11 +52,15 @@ class DecayType(models.Model):
     daughter_one_alias = models.ForeignKey(AliasName,
                                            blank = True, null = True,
                                            related_name = 'decay_types_d1a')
+    daughter_one_decay = models.ForeignKey('DecayType', blank = True, null = True,
+                                           related_name = 'decay_types_d1d')
 
     daughter_two = models.ForeignKey(Particle, related_name = 'decay_types_d2')
     daughter_two_alias = models.ForeignKey(AliasName,
                                            blank = True, null = True,
                                            related_name = 'decay_types_d2a')
+    daughter_two_decay = models.ForeignKey('DecayType', blank = True, null = True,
+                                           related_name = 'decay_types_d2d')
 
     # the third decay particle is optional
     daughter_three = models.ForeignKey(Particle, related_name = 'decay_types_d3',
@@ -60,8 +68,10 @@ class DecayType(models.Model):
     daughter_three_alias = models.ForeignKey(AliasName,
                                              blank = True, null = True,
                                            related_name = 'decay_types_d3a')
+    daughter_three_decay = models.ForeignKey('DecayType', blank = True, null = True,
+                                           related_name = 'decay_types_d3d')
     
-    name = models.CharField(max_length=40,
+    name = models.CharField(max_length=60,
                             help_text = "e.g., X-plus -> mu-plus + Y^0")
 
     def __unicode__(self):

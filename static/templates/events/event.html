@@ -1,15 +1,42 @@
 <div class="row">
-  <div class="col-md-4 col-md-offset-4">
+  <div class="col-md-8 col-md-offset-2">
+    
     <h1>Event</h1>
 
+
+    
     <div class="well">
-      <form role="form" ng-submit="vm.login()">
-        <div class="alert alert-danger" ng-show="error" ng-bind="error"></div>
-	<div> {{vm.event}}</div>
-        <div class="form-group">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </form>
+
+      <svg ng-attr-height="{{vm.graph.height}}" ng-attr-width="{{vm.graph.width}}">
+	<circle ng-repeat="circle in vm.circles" 
+		ng-attr-cx="{{circle.x}}" 
+		ng-attr-cy="{{circle.y}}" 
+		ng-attr-r= "{{circle.r}}">
+	</circle>
+	<path ng-attr-d = "{{vm.d}}" stroke="black" fill="green" stroke-width="2" fill-opacity="0.5"/>
+      </svg>
+<!--
+      <svg width="500" height="500">
+	<circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" />
+	<path d="M10 315
+		 L 110 215
+		 A 30 50 0 0 1 162.55 162.45
+		 L 172.55 152.45
+		 A 30 50 -45 0 1 215.1 109.9
+		 L 315 10" stroke="black" fill="green" stroke-width="2" fill-opacity="0.5"/>	
+      </svg>
+-->
+      
+      <div ng-if = "vm.eventGenerated">
+	{{vm.event}}
+
+	B = {{vm.bFieldStrength}} kG
+
+	B is {{vm.bFieldDirection}}
+      </div>
     </div>
+    <button ng-click="vm.generateEvent()" class="btn btn-primary btn-raised btn-add-generate-event">Generate New Event</button>
+    <button ng-click="vm.toggleBFieldDirection()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">Change B Field Direction</button>
+    
   </div>
 </div>
