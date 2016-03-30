@@ -17,26 +17,34 @@
 	.module('thinkster.decays.controllers')
 	.controller('EventController', EventController);
     
-    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication'];
+    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication', 'DisplayEvent'];
 
     /**
      * @namespace EventController
      */
-    function EventController($cookies, $scope, $location, GenerateEvent, Authentication) {
+    function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent) {
 	var vm = this;
 
-	var xmin = -5; // cm
-	var xmax = 5;  // cm
-	var ymin = -5; // cm
-	var ymax = 5;  // cm
-	var xDecay = 0;// cm; the decay occurs at the origin
-	var yDecay = 0;// cm; the decay occurs at the origin
+	var boundaries = {
+	    xmin: -5, // cm; boundaries of the display region
+	    xmax: 5,  // cm
+	    ymin: -5, // cm
+	    ymax: 5  // cm
+	}
+
+	var decayLocation = {
+	    xDecay: 1,// cm; the location of the decay 
+	    yDecay: 1 // cm
+	}
 
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
 	
 	vm.eventGenerated = false;
 
 	activate();
+
+	vm.phiList = DisplayEvent.boundaryIntersectionAngles(2, -2, 4, boundaries);
+	
 
 	vm.graph = {'width': 500, 'height': 500};
 	vm.circles = [

@@ -42,7 +42,7 @@ def generate_random_event(request):
 
     print request.GET
 
-    print b_field
+    print b_field # probably a string at this point....
     print b_direction
     
     xi_lab = 0.5
@@ -57,8 +57,7 @@ def generate_random_event(request):
     decay_type = DecayType.objects.get(pk=pk)
     data = decay_type.rand_momentum_config_parent_cm(xi_lab, theta_lab)
 
-    # need to add in Bfield strength, B field direction...actually, NO...get that info from a service, which
-    # has to look at the cookie or something....  that's really nothing to do with the event itself!
+    # if this is a two-step decay, will need to get the "data" in two steps...not too bad, though!
     
     data_json = json.dumps(data)
 

@@ -125,13 +125,31 @@ class DecayType(models.Model):
 
             print [coords_b[0]+coords_c[0],coords_b[1]+coords_c[1],coords_b[2]+coords_c[2]]
 
+            # Note: if one of the decay products itself decays, then 'decay_dict" will be replaced
+            #       by its own complete data_dict(!)
             data_dict = {'is_two_body_decay': True,
                          'xi_lab': xi_lab,
                          'theta_lab': theta_lab,
-                         'p_a': coords_a,
-                         'p_b': coords_b,
-                         'p_c': coords_c}                         
-            
+                         'parent': {
+                             'particle_id': self.parent.id,
+                             'mass': m_a,
+                             'energy_momentum': coords_a
+                         },
+                         'decay_products': [
+                             {
+                                 'particle_id': self.daughter_one.id,
+                                 'mass': m_b,
+                                 'energy_momentum': coords_b,
+                                 'decay_dict': None
+                             },
+                             {
+                                 'particle_id': self.daughter_two.id,
+                                 'mass': m_c,
+                                 'energy_momentum': coords_c,
+                                 'decay_dict': None
+                             }
+                         ]
+            }
             return data_dict
 
         else:
@@ -200,22 +218,40 @@ class DecayType(models.Model):
             coords_d = boost_then_rotate(xi_lab, theta_lab,
                                          boost_then_rotate(xi_M2, theta,
                                                            boost_then_rotate(0, theta2, coords_d)))
-            
-            print coords_a
-            print coords_b
-            print coords_c
-            print coords_d
 
-            print [coords_b[0]+coords_c[0]+coords_d[0],coords_b[1]+coords_c[1]+coords_d[1],
-                   coords_b[2]+coords_c[2]+coords_d[2]]
+#            print coords_a
+#            print [coords_b[0]+coords_c[0]+coords_d[0],coords_b[1]+coords_c[1]+coords_d[1],
+#                   coords_b[2]+coords_c[2]+coords_d[2]]
 
             data_dict = {'is_two_body_decay': False,
                          'xi_lab': xi_lab,
                          'theta_lab': theta_lab,
-                         'p_a': coords_a,
-                         'p_b': coords_b,
-                         'p_c': coords_c,
-                         'p_d': coords_d}                         
+                         'parent': {
+                             'particle_id': self.parent.id,
+                             'mass': m_a,
+                             'energy_momentum': coords_a
+                             },
+                         'decay_products': [
+                             {
+                                 'particle_id': self.daughter_one.id,
+                                 'mass': m_b,
+                                 'energy_momentum': coords_b,
+                                 'decay_dict': None
+                             },
+                             {
+                                 'particle_id': self.daughter_two.id,
+                                 'mass': m_c,
+                                 'energy_momentum': coords_c,
+                                 'decay_dict': None
+                             },
+                             {
+                                 'particle_id': self.daughter_three.id,
+                                 'mass': m_d,
+                                 'energy_momentum': coords_d,
+                                 'decay_dict': None
+                             }
+                         ]
+            }
             
             return data_dict
 
