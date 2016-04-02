@@ -53,7 +53,7 @@
     function DisplayEvent() {
 	var Event = {
 	    pathParams: pathParams,
-	    boundaryIntersectionAngles: boundaryIntersectionAngles
+	    boundaryIntersectionAngle: boundaryIntersectionAngle
 	};
 
 	return Event;
@@ -91,23 +91,7 @@
 		phi0 = Math.atan2(-px, py); // phi0 = tan((-px)/py)
 		x0 = interactionLocation.x - r*Math.cos(phi0);
 		y0 = interactionLocation.y - r*Math.sin(phi0);
-
-		phiList = boundaryIntersectionAngles(x0, y0, r, boundaries);
-		if (phiList.length == 0) {
-		    phiBorder = phi0 - 3*PI/2;
-		} else {
-		    var i;
-		    var deltaPhi = 3*PI;// this will get reset
-		    var deltaPhiTemp;
-		    for (i = 0; i < phiList.length; i++) {
-			deltaPhiTemp = (phi0 - phiList[i]+6*PI) % (2*PI);// adding 6*PI to be on the safe side
-			if (deltaPhiTemp < deltaPhi) {
-			    deltaPhi = deltaPhiTemp;
-			    phiBorder = phi0 - deltaPhi;
-			}
-		    }
-		}
-		
+		phiBorder = boundaryIntersectionAngle(x0, y0, r, phi0, boundaries, direction, inout);
 	    }
 
 	    arcString = arcString(x0, y0, r, phi0, phiBorder, boundaries, interactionLocation, direction, inout);
@@ -173,77 +157,61 @@
 	    return returnString;
 	}
 
-	
 	/**
-	 * @desc calculates all angles at which the circle in question intersects with the boundary
+	 * @desc determines the first angle at which the circle in question intersects 
+	 *       with a boundary; if there is no intersection by |Delta phi| = 3 pi/2, then
+	 *       a value is put in by hand to correspond to |Delta phi| = 3 pi/2
 	 * @inputs - r is the radius of the circle
 	 *         - boundaries contains the boundaries of the region
 	 *         - (x0, y0) is the center of the circle
-         * @returns list of phi values
-
-	 Duh -- make this much simpler.  Just step backwards/forwards 
-	 from the interaction point along a given track until an edge is reached.
-	 Easy-peasy.  Write a new function, isInsideBox.  When it turns
-	 false, we've found our point.  If we go 3 Pi/2 without finding it, stop.
-
-
+         * @returns phi value
 	 */
-	function boundaryIntersectionAngles(x0, y0, r, boundaries) {
-	    var phiList = [];
-	    var dx, dy;
-	    var xmin = boundaries.xmin;
-	    var xmax = boundaries.xmax;
-	    var ymin = boundaries.ymin;
-	    var ymax = boundaries.ymax;
-	    
-	    if (x0 > xmin && xmin > x0-r) {// could be up to two intersections with the left boundary
-		dy = Math.sqrt(r*r-(x0-xmin)*(x0-xmin));
-		dx = xmin-x0;
-		if (y0+dy < ymax) {
-		    phiList.push(Math.atan2(dy,dx));
-		}
-		if (y0-dy > ymin) {
-		    phiList.push(Math.atan2(-dy,dx));
-		}
-	    }
-	    
-	    if (x0 < xmax && xmax < x0+r) {// could be up to two intersections with the right boundary
-		dy = Math.sqrt(r*r-(x0-xmax)*(x0-xmax));
-		dx = xmax-x0;
-		if (y0+dy < ymax) {
-		    phiList.push(Math.atan2(dy,dx));
-		}
-		if (y0-dy > ymin) {
-		    phiList.push(Math.atan2(-dy,dx));
-		}
+	function boundaryIntersectionAngle(x0, y0, r, phi0, boundaries, direction, inout) {
+	    var phi;
+	    var PI = Math.acos(-1);
+	    var deltaPhiMax = 3*PI/2;
+	    var phiStep = 0.01; //radians
+	    var x, y;
+	    x = x0 + r*Math.cos(phi0); // this is the interaction point
+	    y = y0 + r*Math.sin(phi0);
+	    if (!isInsideBoundingBox(x, y, boundaries)){
+		return phi0;// hopefully this doesn't happen(!)
 	    }
 
-	    if (y0 > ymin && ymin > y0-r) {// could be up to two intersections with the bottom boundary
-		dy = ymin-y0;
-		dx = Math.sqrt(r*r-(y0-ymin)*(y0-ymin));
-		if (x0+dx < xmax) {
-		    phiList.push(Math.atan2(dy,dx));
-		}
-		if (x0-dx > xmin) {
-		    phiList.push(Math.atan2(dy,-dx));
-		}
-	    }
-
-	    if (y0 < ymax && ymax < y0+r) {// could be up to two intersections with the top boundary
-		dy = ymax-y0;
-		dx = Math.sqrt(r*r-(y0-ymax)*(y0-ymax));
-		if (x0+dx < xmax) {
-		    phiList.push(Math.atan2(dy,dx));
-		}
-		if (x0-dx > xmin) {
-		    phiList.push(Math.atan2(dy,-dx));
+	    var inside = true;
+	    phi = phi0;
+	    var deltaPhi = 0;
+	    while (inside == true && deltaPhi < deltaPhiMax) {
+		if (direction == 'ccw' && inout == 'incoming') {
+		    phi = phi - phiStep;
+		    deltaPhi = (phi0 - phi + 6*PI) % (2*PI); // addin 6*PI to be on the safe side
+		    x = x0 + r*Math.cos(phi);
+		    y = y0 + r*Math.sin(phi);
+		    inside = isInsideBoundingBox(x, y, boundaries);
 		}
 	    }
-
-	    return phiList;
-
+	    // phi now corresponds to a point slightly outside the bounding box, so reset it
+	    phi = phi + phiStep;
+	    return phi;
 	}
+	
 
+	/**
+	 * @desc determines whether or not a given coordinate is inside the bounding region
+	 * @inputs - (x, y) are the coordinates of the point in question (in cm)
+	 *         - boundaries contains the boundaries of the region
+         * @returns boolean
+	 */
+	function isInsideBoundingBox(x, y, boundaries) {
+	    if (x < boundaries.xmax &&
+		x > boundaries.xmin &&
+		y < boundaries.ymax &&
+		y > boundaries.ymin) {
+		return true;
+	    } else {
+		return false;
+	    }
+	}
 	
     }
 

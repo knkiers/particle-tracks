@@ -9,6 +9,7 @@
  *
  * ISSUES: - when toggling B field, need to somehow adjust the event, too; in particular, if there is a chained
  *           event, everything will be messed up.  maybe just need to do a simple reversal of some sort...(?)
+ * IDEAS:  - should think about using django's session object to store b_field and b_direction, instead of the cookie
  */
 (function () {
     'use strict';
@@ -47,7 +48,7 @@
 
 	activate();
 
-	vm.d = DisplayEvent.pathParams(36, boundaries, interactionLocation, -70, 70, 'ccw', 'incoming');
+	vm.d = DisplayEvent.pathParams(36, boundaries, interactionLocation, 0, 120, 'ccw', 'incoming');
 
 	
 	
