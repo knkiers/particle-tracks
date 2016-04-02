@@ -25,16 +25,20 @@
     function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent) {
 	var vm = this;
 
-	var boundaries = {
+	var boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
 	    xmin: -5, // cm; boundaries of the display region
 	    xmax: 5,  // cm
 	    ymin: -5, // cm
-	    ymax: 5  // cm
+	    ymax: 5,  // cm
+	    xminPx: 50, // boundaries of the display region in pixels
+	    xmaxPx: 450, // pixels
+	    yminPx: 450, // pixels; yminPx is at the bottom of the plot region
+	    ymaxPx: 50 // pixels
 	}
 
-	var decayLocation = {
-	    xDecay: 1,// cm; the location of the decay 
-	    yDecay: 1 // cm
+	var interactionLocation = {
+	    x: 0,// cm; the location of the decay 
+	    y: 0 // cm
 	}
 
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
@@ -43,7 +47,9 @@
 
 	activate();
 
-	vm.phiList = DisplayEvent.boundaryIntersectionAngles(2, -2, 4, boundaries);
+	vm.d = DisplayEvent.pathParams(36, boundaries, interactionLocation, -70, 70, 'ccw', 'incoming');
+
+	
 	
 
 	vm.graph = {'width': 500, 'height': 500};
@@ -53,7 +59,7 @@
 	    {'x': 55, 'y': 10, 'r':40},
 	];
 
-	vm.d = "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10"
+	//vm.d = "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10"
 
 	/**
 	 * @name generateEvent

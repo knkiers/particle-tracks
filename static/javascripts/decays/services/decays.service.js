@@ -81,26 +81,112 @@
          *       
 	 */
 	
-	function pathParams(b_field, boundaries, decayLocation, px, py, direction, inout) {
+	function pathParams(b_field, boundaries, interactionLocation, px, py, direction, inout) {
 	    var p = Math.sqrt(px*px+py*py);
 	    var r = p/(0.3*b_field);
+	    var phi0, x0, y0, phiList;
+	    var PI = Math.acos(-1);
+	    var phiBorder;
 	    if (direction == 'ccw' && inout == 'incoming') {
-		var phi0 = Math.atan2(-px, py); // phi0 = tan((-px)/py)
-		var x0 = gridVariables.xDecay - r*Math.cos(phi0);
-		var y0 = gridVariables.yDecay - r*Math.cos(phi0);
+		phi0 = Math.atan2(-px, py); // phi0 = tan((-px)/py)
+		x0 = interactionLocation.x - r*Math.cos(phi0);
+		y0 = interactionLocation.y - r*Math.sin(phi0);
 
-		// now call a function that calculates phiInitial
+		phiList = boundaryIntersectionAngles(x0, y0, r, boundaries);
+		if (phiList.length == 0) {
+		    phiBorder = phi0 - 3*PI/2;
+		} else {
+		    var i;
+		    var deltaPhi = 3*PI;// this will get reset
+		    var deltaPhiTemp;
+		    for (i = 0; i < phiList.length; i++) {
+			deltaPhiTemp = (phi0 - phiList[i]+6*PI) % (2*PI);// adding 6*PI to be on the safe side
+			if (deltaPhiTemp < deltaPhi) {
+			    deltaPhi = deltaPhiTemp;
+			    phiBorder = phi0 - deltaPhi;
+			}
+		    }
+		}
 		
 	    }
-	    
+
+	    arcString = arcString(x0, y0, r, phi0, phiBorder, boundaries, interactionLocation, direction, inout);
+	    return arcString;
+ 
 	}
 
+	/**
+	 * @desc determines the string that will create the arc in SVG
+	 * @inputs - r is the radius of the circle
+	 *         - boundaries contains the boundaries of the region
+	 *         - (x0, y0) is the center of the circle
+         * @returns string
+	 */
+	function arcString(x0, y0, r, phi0, phiBorder, boundaries, interactionLocation, direction, inout) {
+	    var PI = Math.acos(-1);
+	    
+	    var largeArcFlag = '0';
+	    var deltaPhi = phi0 - phiBorder;
+	    if (direction == 'ccw' && inout == 'incoming') {
+		var xFinal = interactionLocation.x;
+		var yFinal = interactionLocation.y;
+		var xInitial = x0 + r*Math.cos(phiBorder);
+		var yInitial = y0 + r*Math.sin(phiBorder);
+		if (deltaPhi > PI) {// probably have to be more careful than this!!!
+		    largeArcFlag = '1';
+		}
+		var sweepFlag = '0';
+	    }
+	    
+	    var pixelFinal = translatecmtoPixels(xFinal, yFinal, boundaries);
+	    var pixelInitial = translatecmtoPixels(xInitial, yInitial, boundaries);
+	    var rPx = translateRadiuscmtoPixels(r, boundaries);
+	    var arrayToStringify = ['M', pixelInitial.x, pixelInitial.y, 'A', rPx.toString(), rPx.toString(),
+				    '0', largeArcFlag, sweepFlag, pixelFinal.x, pixelFinal.y];
+	    var arcString = stringifyArray(arrayToStringify);
+	    return arcString;
+	}
+
+	function translatecmtoPixels(x, y, boundaries) {
+	    var xPx = boundaries.xminPx +
+		(x-boundaries.xmin)*(boundaries.xmaxPx-boundaries.xminPx)/
+		(boundaries.xmax-boundaries.xmin);
+	    
+	    var yPx = boundaries.yminPx -
+		(y-boundaries.ymin)*(boundaries.yminPx-boundaries.ymaxPx)/
+		(boundaries.ymax-boundaries.ymin);
+	    
+	    var pixelCoordsString = {'x': xPx.toString(), 'y': yPx.toString()};
+	    return pixelCoordsString;
+	}
+
+	function translateRadiuscmtoPixels(r, boundaries) {//assume aspect ratio is 1!!!
+	    return r*(boundaries.xmaxPx-boundaries.xminPx)/(boundaries.xmax-boundaries.xmin);
+	}
+
+	function stringifyArray(array) {
+	    var returnString = '';
+	    var i;
+	    for (i=0; i<array.length; i++) {
+		returnString += array[i]+' ';
+	    }
+	    return returnString;
+	}
+
+	
 	/**
 	 * @desc calculates all angles at which the circle in question intersects with the boundary
 	 * @inputs - r is the radius of the circle
 	 *         - boundaries contains the boundaries of the region
 	 *         - (x0, y0) is the center of the circle
          * @returns list of phi values
+
+	 Duh -- make this much simpler.  Just step backwards/forwards 
+	 from the interaction point along a given track until an edge is reached.
+	 Easy-peasy.  Write a new function, isInsideBox.  When it turns
+	 false, we've found our point.  If we go 3 Pi/2 without finding it, stop.
+
+
 	 */
 	function boundaryIntersectionAngles(x0, y0, r, boundaries) {
 	    var phiList = [];
