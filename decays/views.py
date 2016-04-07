@@ -11,7 +11,6 @@ from django.utils.six import BytesIO
 from django.http import HttpResponse
 import json
 
-
 import random
 
 @api_view()
@@ -44,9 +43,14 @@ def generate_random_event(request):
 
     print b_field # probably a string at this point....
     print b_direction
-    
-    xi_lab = 0.5
-    theta_lab = 1.234234234
+
+    xi_min = 0.1
+    xi_max = 0.8
+    xi_lab = random.random()*(xi_max-xi_min)+xi_min
+
+    theta_min = -0.15
+    theta_max = 0.15
+    theta_lab = random.random()*(theta_max-theta_min)+theta_min
     
     id_list = []
     for decay_type in DecayType.objects.all():

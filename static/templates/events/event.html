@@ -1,18 +1,21 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
     
-    <h1>Event</h1>
+    <h1>
+      <div ng-bind-html="vm.event.name">
+      </div>
+    </h1>
 
-
-    
     <div class="well">
 
       <svg ng-attr-height="{{vm.graph.height}}" ng-attr-width="{{vm.graph.width}}">
 	<rect x="50" y="50" width="400" height="400"
 	      style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9" />
 
-	<path ng-attr-d = "{{vm.d.charged}}" stroke="black" fill="green" stroke-width="2" fill-opacity="0.5"/>
-	<path ng-attr-d = "{{vm.d.neutral}}" stroke="black" stroke-dasharray = "10, 5" stroke-width="2" />
+	<path ng-attr-d = "{{vm.d.inCharged}}" stroke="green" stroke-width="3" fill="none" />
+	<path ng-attr-d = "{{vm.d.inNeutral}}" stroke="green" stroke-dasharray = "10, 5" stroke-width="3" />
+	<path ng-attr-d = "{{vm.d.outCharged}}" stroke="grey" stroke-width="3" fill="none" />
+	<path ng-attr-d = "{{vm.d.outNeutral}}" stroke="grey" stroke-dasharray = "10, 5" stroke-width="3" />
       </svg>
 <!--
       <svg width="500" height="500">

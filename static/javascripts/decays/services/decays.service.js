@@ -69,18 +69,20 @@
 	
 	function getStringEventDisplay(bFieldStrength, bFieldDirection, boundaries, interactionLocation, event){
 
-	    var dChargedString = '';
-	    var dNeutralString = '';
+	    var inChargedString = '';
+	    var inNeutralString = '';
+	    var outChargedString = '';
+	    var outNeutralString = '';
 	    var particleDirection;
 	    var px, py;
 	    px = event.parent.energy_momentum[1];
 	    py = event.parent.energy_momentum[2];
 	    if (event.parent.charge != 0) {
 		particleDirection = inOut(bFieldDirection, event.parent.charge);
-		dChargedString += curvedPathParams(bFieldStrength, boundaries, interactionLocation,
+		inChargedString += curvedPathParams(bFieldStrength, boundaries, interactionLocation,
 				      px, py, particleDirection, 'incoming');
 	    } else {
-		dNeutralString += straightPathParams(boundaries, interactionLocation, px, py, 'incoming');
+		inNeutralString += straightPathParams(boundaries, interactionLocation, px, py, 'incoming');
 	    }
 	    var i, dP;
 	    for (i=0; i<event.decay_products.length; i++) {
@@ -89,14 +91,15 @@
 		py = dP.energy_momentum[2];
 		if (dP.charge != 0) {
 		    particleDirection = inOut(bFieldDirection, dP.charge);
-		    dChargedString += curvedPathParams(bFieldStrength, boundaries, interactionLocation,
+		    outChargedString += curvedPathParams(bFieldStrength, boundaries, interactionLocation,
 					  px, py, particleDirection, 'outgoing');
 		} else {
-		    dNeutralString += straightPathParams(boundaries, interactionLocation, px, py, 'outgoing');
+		    outNeutralString += straightPathParams(boundaries, interactionLocation, px, py, 'outgoing');
 		}
 	    }
 
-	    var dString = {'charged': dChargedString, 'neutral': dNeutralString};
+	    var dString = {'inCharged': inChargedString, 'inNeutral': inNeutralString,
+			   'outCharged': outChargedString, 'outNeutral': outNeutralString};
 	    return dString;
 
 	}

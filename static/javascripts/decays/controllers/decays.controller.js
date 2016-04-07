@@ -6,6 +6,9 @@
  *             - useful info regarding how to make an arc of a circle in svg:
  *               https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/
  *                       Paths?redirectlocale=en-US&redirectslug=SVG%2FTutorial%2FPaths#Arcs
+ *             - including html tags:
+ *               https://docs.angularjs.org/api/ng/directive/ngBindHtml
+ *               http://stackoverflow.com/questions/14726938/angular-sanitize-ng-bind-html-not-working
  *
  * ISSUES: - when toggling B field, need to somehow adjust the event, too; in particular, if there is a chained
  *           event, everything will be messed up.  maybe just need to do a simple reversal of some sort...(?)
@@ -15,7 +18,7 @@
     'use strict';
 
     angular
-	.module('thinkster.decays.controllers')
+	.module('thinkster.decays.controllers',['ngSanitize'])
 	.controller('EventController', EventController);
     
     EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication', 'DisplayEvent'];
@@ -37,9 +40,11 @@
 	    ymaxPx: 50 // pixels
 	}
 
-	vm.interactionLocation = {
-	    x: -0.5,// cm; the location of the decay 
-	    y: 2 // cm
+	var interactionRegion = {
+	    xmin: -1,
+	    xmax: 1,
+	    ymin: -1,
+	    ymax: 1
 	}
 
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
@@ -54,11 +59,6 @@
 	
 
 	vm.graph = {'width': 500, 'height': 500};
-	vm.circles = [
-	    {'x': 15, 'y': 20, 'r':30},
-	    {'x': 35, 'y': 60, 'r':20},
-	    {'x': 55, 'y': 10, 'r':40},
-	];
 
 	//vm.d = "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10"
 
@@ -128,6 +128,13 @@
 	     */
 
 	    vm.event = JSON.parse(data.data);
+
+	    vm.HTML = 'I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
+
+	    vm.interactionLocation = {
+		x: Math.random()*(interactionRegion.xmax-interactionRegion.xmin) + interactionRegion.xmin,
+		y: Math.random()*(interactionRegion.ymax-interactionRegion.ymin) + interactionRegion.ymin
+	    }
 
 	    vm.d = DisplayEvent.getStringEventDisplay(vm.bFieldStrength,
 						      vm.bFieldDirection,

@@ -71,7 +71,7 @@ class DecayType(models.Model):
     daughter_three_decay = models.ForeignKey('DecayType', blank = True, null = True,
                                            related_name = 'decay_types_d3d')
     
-    name = models.CharField(max_length=60,
+    name = models.CharField(max_length=200,
                             help_text = "e.g., X-plus -> mu-plus + Y^0")
 
     def __unicode__(self):
@@ -130,6 +130,7 @@ class DecayType(models.Model):
             data_dict = {'is_two_body_decay': True,
                          'xi_lab': xi_lab,
                          'theta_lab': theta_lab,
+                         'name': self.name,
                          'parent': {
                              'particle_id': self.parent.id,
                              'mass': m_a,
@@ -229,6 +230,7 @@ class DecayType(models.Model):
             data_dict = {'is_two_body_decay': False,
                          'xi_lab': xi_lab,
                          'theta_lab': theta_lab,
+                         'name': self.name,
                          'parent': {
                              'particle_id': self.parent.id,
                              'mass': m_a,
