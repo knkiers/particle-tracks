@@ -26,7 +26,7 @@
     function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent) {
 	var vm = this;
 
-	var boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
+	vm.boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
 	    xmin: -5, // cm; boundaries of the display region
 	    xmax: 5,  // cm
 	    ymin: -5, // cm
@@ -37,9 +37,9 @@
 	    ymaxPx: 50 // pixels
 	}
 
-	var interactionLocation = {
-	    x: 0,// cm; the location of the decay 
-	    y: 0 // cm
+	vm.interactionLocation = {
+	    x: -0.5,// cm; the location of the decay 
+	    y: 2 // cm
 	}
 
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
@@ -48,7 +48,7 @@
 
 	activate();
 
-	vm.d = DisplayEvent.pathParams(36, boundaries, interactionLocation, 0, 120, 'ccw', 'incoming');
+	//vm.d = DisplayEvent.pathParams(170, boundaries, interactionLocation, 0, 120, 'ccw', 'outgoing');
 
 	
 	
@@ -100,7 +100,7 @@
 	    }
 
 	    if (!$cookies.bFieldStrength) {
-		vm.bFieldStrength = 5; // default is B = 5 kG
+		vm.bFieldStrength = 50; // default is B = 50 kG
 		$cookies.bFieldStrength = vm.bFieldStrength;
 	    } else {
 		vm.bFieldStrength = $cookies.bFieldStrength;
@@ -121,7 +121,20 @@
 	 */
 	function eventSuccessFn(data, status, headers, config) {
 	    vm.eventGenerated = true;
-	    vm.event = data.data;
+	    /*
+	     * something tells me that this is not the way to do this!!!  shouldn't it already be an object when it arrives?!?
+	     * SOMETHING is broken -- on the second generate event function call, it says that arcString is not a function....  HUH?!?
+
+	     */
+
+	    vm.event = JSON.parse(data.data);
+
+	    vm.d = DisplayEvent.getStringEventDisplay(vm.bFieldStrength,
+						      vm.bFieldDirection,
+						      vm.boundaries,
+						      vm.interactionLocation,
+						      vm.event);
+	    
 	}
 
 	/**

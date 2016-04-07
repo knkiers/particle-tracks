@@ -133,18 +133,21 @@ class DecayType(models.Model):
                          'parent': {
                              'particle_id': self.parent.id,
                              'mass': m_a,
+                             'charge': self.parent.charge,
                              'energy_momentum': coords_a
                          },
                          'decay_products': [
                              {
                                  'particle_id': self.daughter_one.id,
                                  'mass': m_b,
+                                 'charge': self.daughter_one.charge,
                                  'energy_momentum': coords_b,
                                  'decay_dict': None
                              },
                              {
                                  'particle_id': self.daughter_two.id,
                                  'mass': m_c,
+                                 'charge': self.daughter_two.charge,
                                  'energy_momentum': coords_c,
                                  'decay_dict': None
                              }
@@ -229,24 +232,28 @@ class DecayType(models.Model):
                          'parent': {
                              'particle_id': self.parent.id,
                              'mass': m_a,
+                             'charge': self.parent.charge,
                              'energy_momentum': coords_a
                              },
                          'decay_products': [
                              {
                                  'particle_id': self.daughter_one.id,
                                  'mass': m_b,
+                                 'charge': self.daughter_one.charge,
                                  'energy_momentum': coords_b,
                                  'decay_dict': None
                              },
                              {
                                  'particle_id': self.daughter_two.id,
                                  'mass': m_c,
+                                 'charge': self.daughter_two.charge,
                                  'energy_momentum': coords_c,
                                  'decay_dict': None
                              },
                              {
                                  'particle_id': self.daughter_three.id,
                                  'mass': m_d,
+                                 'charge': self.daughter_three.charge,
                                  'energy_momentum': coords_d,
                                  'decay_dict': None
                              }
