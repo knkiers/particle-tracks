@@ -1,8 +1,8 @@
 <div class="row">
-  <div class="col-md-8 col-md-offset-2">
+  <div class="col-md-10 col-md-offset-1">
     
     <h1>
-      <div ng-bind-html="vm.event.name">
+      <div ng-if = "vm.eventGenerated" ng-bind-html="vm.event.name">
       </div>
     </h1>
 
@@ -17,17 +17,23 @@
 	<path ng-attr-d = "{{vm.d.outCharged}}" stroke="grey" stroke-width="3" fill="none" />
 	<path ng-attr-d = "{{vm.d.outNeutral}}" stroke="grey" stroke-dasharray = "10, 5" stroke-width="3" />
       </svg>
-<!--
-      <svg width="500" height="500">
-	<circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" />
-	<path d="M10 315
-		 L 110 215
-		 A 30 50 0 0 1 162.55 162.45
-		 L 172.55 152.45
-		 A 30 50 -45 0 1 215.1 109.9
-		 L 315 10" stroke="black" fill="green" stroke-width="2" fill-opacity="0.5"/>	
+
+      <svg ng-attr-height="{{vm.graph.height}}" ng-attr-width="{{vm.graph.width}}">
+	<rect x="50" y="50" width="400" height="400"
+	      style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9" />
+
+	<path ng-attr-d = "{{vm.d.inCharged}}" stroke="green" stroke-width="3" fill="none" />
+	<path ng-attr-d = "{{vm.d.inNeutral}}" stroke="green" stroke-dasharray = "10, 5" stroke-width="3" />
+	<path ng-attr-d = "{{vm.d.outCharged}}" stroke="grey" stroke-width="3" fill="none" />
+	<path ng-attr-d = "{{vm.d.outNeutral}}" stroke="grey" stroke-dasharray = "10, 5" stroke-width="3" />
+	<g ng-repeat="dot in vm.dots">
+	  <circle ng-mouseover="vm.checkDot(dot.index)" ng-attr-cx="{{dot.x}}" ng-attr-cy="{{dot.y}}"
+		  ng-attr-r="{{dot.activated ? '2' : '1' }}" stroke="black" stroke-width="0"
+		  ng-attr-fill="{{dot.useForFit ? 'red' : 'grey' }}" />
+	</g>
       </svg>
--->
+
+      
       
       <div ng-if = "vm.eventGenerated">
 	{{vm.d}}
@@ -41,7 +47,10 @@
       <div> {{vm.d}} </div>
     </div>
     <button ng-click="vm.generateEvent()" class="btn btn-primary btn-raised btn-add-generate-event">Generate New Event</button>
-    <button ng-click="vm.toggleBFieldDirection()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">Change B Field Direction</button>
+    <button ng-click="vm.toggleColourErase()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">
+      <span ng-if="vm.colourMode"> Erase </span>
+      <span ng-if="!vm.colourMode"> Colour </span>
+    </button>
     
   </div>
 </div>

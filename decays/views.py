@@ -39,18 +39,22 @@ def generate_random_event(request):
     b_field = request.GET.get('b_field','')
     b_direction = request.GET.get('b_direction','')
 
-    print request.GET
+    # print request.GET
 
     print b_field # probably a string at this point....
     print b_direction
 
-    xi_min = 0.1
+    xi_min = 0.05
     xi_max = 0.8
     xi_lab = random.random()*(xi_max-xi_min)+xi_min
 
-    theta_min = -0.15
-    theta_max = 0.15
+    theta_min = 0.25
+    theta_max = 0.85
     theta_lab = random.random()*(theta_max-theta_min)+theta_min
+    sign_choices = [1, -1]
+    theta_lab = random.choice(sign_choices)*theta_lab
+    # this approach to generating random theta_lab values means that
+    # there won't be incident particles in the "+y" direction
     
     id_list = []
     for decay_type in DecayType.objects.all():

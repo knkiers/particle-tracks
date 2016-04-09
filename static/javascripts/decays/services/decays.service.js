@@ -8,7 +8,8 @@
     angular
 	.module('thinkster.decays.services')
 	.factory('GenerateEvent', GenerateEvent)
-	.factory('DisplayEvent', DisplayEvent);
+	.factory('DisplayEvent', DisplayEvent)
+	.factory('AnalyzeEvent', AnalyzeEvent);
 
     GenerateEvent.$inject = ['$http'];
 
@@ -51,13 +52,14 @@
      * @returns {Factory}
      */
     function DisplayEvent() {
-	var Event = {
+	var Display = {
 	    curvedPathParams: curvedPathParams,
 	    boundaryIntersectionAngle: boundaryIntersectionAngle,
-	    getStringEventDisplay: getStringEventDisplay
+	    getStringEventDisplay: getStringEventDisplay,
+	    translatecmtoPixels: translatecmtoPixels
 	};
 
-	return Event;
+	return Display;
 
 	////////////////////
 
@@ -357,6 +359,26 @@
 	
     }
 
+        /**
+     * @namespace thinkster.decays.services
+     * @returns {Factory}
+     */
+    function AnalyzeEvent() {
+	var Analysis = {
+	};
 
+	return Analysis;
+
+	////////////////////
+
+	/*
+	 * @name 
+	 *
+	 */
+
+	
+	
+
+    }
     
 })();

@@ -9,6 +9,8 @@
  *             - including html tags:
  *               https://docs.angularjs.org/api/ng/directive/ngBindHtml
  *               http://stackoverflow.com/questions/14726938/angular-sanitize-ng-bind-html-not-working
+ *             - conditionals with attributes:
+ *               http://stackoverflow.com/questions/22049824/conditionally-adding-data-attribute-in-angular-directive-template
  *
  * ISSUES: - when toggling B field, need to somehow adjust the event, too; in particular, if there is a chained
  *           event, everything will be messed up.  maybe just need to do a simple reversal of some sort...(?)
@@ -34,23 +36,58 @@
 	    xmax: 5,  // cm
 	    ymin: -5, // cm
 	    ymax: 5,  // cm
+	    numGridPointsX: 41, // the number of grid points in the x direction; must be at least 2
+	    numGridPointsY: 41,
 	    xminPx: 50, // boundaries of the display region in pixels
 	    xmaxPx: 450, // pixels
 	    yminPx: 450, // pixels; yminPx is at the bottom of the plot region
-	    ymaxPx: 50 // pixels
+	    ymaxPx: 50, // pixels
 	}
 
-	var interactionRegion = {
+	var interactionRegion = {// this is the region within which the interaction point can occur
 	    xmin: -1,
 	    xmax: 1,
 	    ymin: -1,
 	    ymax: 1
 	}
 
+	vm.colourMode = true;
+/*	vm.dots =
+	    [
+		{
+		    index:     0,
+		    activated: false,
+		    x:         100,
+		    y:         100,
+		    useForFit: false,
+		},
+		{
+		    index:     1,
+		    activated: true,
+		    x:         200,
+		    y:         100,
+		    useForFit: false,
+		},
+		{
+		    index:     2,
+		    activated: true,
+		    x:         300,
+		    y:         100,
+		    useForFit: false,
+		}
+	    ];
+	
+*/
+	
+
+
+	
+
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
 	
 	vm.eventGenerated = false;
 
+	initializeGrid();
 	activate();
 
 	//vm.d = DisplayEvent.pathParams(170, boundaries, interactionLocation, 0, 120, 'ccw', 'outgoing');
@@ -83,9 +120,47 @@
 
 	}
 
+	vm.checkDot = function(index) {
+	    if (vm.dots[index].activated) {
+		if (vm.colourMode) {
+		    vm.dots[index].useForFit = true;
+		} else {
+		    vm.dots[index].useForFit = false;
+		}
+	    }
+	}
+
+	function initializeGrid() {
+
+	    var deltaX = (vm.boundaries.xmax-vm.boundaries.xmin)/(vm.boundaries.numGridPointsX-1);
+	    var deltaY = (vm.boundaries.ymax-vm.boundaries.ymin)/(vm.boundaries.numGridPointsY-1);
+
+	    vm.dots = [];
+
+	    var x, y;
+	    var i, j, coordsPx;
+	    var index = 0;
+	    for (j=0; j<vm.boundaries.numGridPointsY; j++) {
+		for (i=0; i<vm.boundaries.numGridPointsX; i++) {
+		    x = vm.boundaries.xmin + i*deltaX;
+		    y = vm.boundaries.ymin + j*deltaY;
+		    coordsPx = DisplayEvent.translatecmtoPixels(x, y, vm.boundaries);
+		    vm.dots.push(
+			{
+			    index:     index,
+			    activated: true,
+			    x:         coordsPx.x,
+			    y:         coordsPx.y,
+			    useForFit: false,
+			}
+		    );
+		    index++;
+		}
 
 
+	    }
 
+	}
 	
 
 	
@@ -167,6 +242,14 @@
 		    $cookies.bFieldDirection = 'in';
 		}
 		vm.bFieldDirection = $cookies.bFieldDirection;
+	    }
+	}
+
+	vm.toggleColourErase = function() {
+	    if (vm.colourMode) {
+		vm.colourMode = false;
+	    } else {
+		vm.colourMode = true;
 	    }
 	}
     }
