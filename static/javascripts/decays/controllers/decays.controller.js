@@ -23,14 +23,19 @@
 	.module('thinkster.decays.controllers',['ngSanitize'])
 	.controller('EventController', EventController);
     
-    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication', 'DisplayEvent', 'AnalyzeEvent'];
+    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent',
+			       'Authentication', 'DisplayEvent', 'AnalyzeEvent'];
 
     /**
      * @namespace EventController
      */
-    function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent, AnalyzeEvent) {
+    function EventController($cookies, $scope, $location, GenerateEvent,
+			     Authentication, DisplayEvent, AnalyzeEvent) {
 	var vm = this;
 
+	vm.error = false;
+	vm.errorMessage = '';
+	
 	vm.boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
 	    xmin: -5, // cm; boundaries of the display region
 	    xmax: 5,  // cm
@@ -64,12 +69,12 @@
 	activate();
 	//vm.d = DisplayEvent.pathParams(170, boundaries, interactionLocation, 0, 120, 'ccw', 'outgoing');
 
-	var circleInputData = {
-	    x: [0, 0.5, 1, 1.5, 2, 2.5, 3, 0, -20, -10, -10],
-	    y: [0, 0.25, 1, 2.25, 4, 6.25, 9, 15, 11, -4, 18]
-	}
+	//var circleInputData = {
+	//    x: [0, 0.5, 1, 1.5, 2, 2.5, 3, 0, -20, -10, -10],
+	//    y: [0, 0.25, 1, 2.25, 4, 6.25, 9, 15, 11, -4, 18]
+	//}
 	
-	var circleData = AnalyzeEvent.circleFitter(circleInputData);
+	//var circleData = AnalyzeEvent.circleFitter(circleInputData);
 
 	vm.graph = {'width': 500, 'height': 500};
 
@@ -97,9 +102,16 @@
 
 	vm.fitCircleToData = function() {
 	    var circleInputData = AnalyzeEvent.gatherDataFromDots(vm.dots, vm.boundaries);
+	    
 	    var circleDatacm = AnalyzeEvent.circleFitter(circleInputData);
-	    var circleDataPx = DisplayEvent.translateCircleDatatoPixels(circleDatacm, vm.boundaries);
-	    vm.circles.push(circleDataPx);
+	    if (circleDatacm.error) {
+		vm.errorMessage = circleDatacm.errorMessage;
+		vm.error = true;
+	    } else {
+		var circleDataPx = DisplayEvent.translateCircleDatatoPixels(circleDatacm, vm.boundaries);
+		vm.circles.push(circleDataPx);
+	    }
+	    
 	}
 	
 	vm.checkDot = function(index) {
@@ -110,6 +122,11 @@
 		    vm.dots[index].useForFit = false;
 		}
 	    }
+	}
+
+	vm.dismissErrorMessage = function() {
+	    vm.errorMessage = '';
+	    vm.error = false;
 	}
 
 	function initializeGrid() {
@@ -236,6 +253,7 @@
 		vm.colourMode = true;
 	    }
 	}
+
 
     }
 

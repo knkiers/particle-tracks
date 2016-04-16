@@ -8,7 +8,7 @@
 	    'thinkster.authentication',
 	    'thinkster.layout',
 	    'thinkster.decays',
-	    //'thinkster.utils',
+	    //'thinkster.utils'
 	    //'thinkster.profiles'
 	]);
 

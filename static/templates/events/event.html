@@ -6,6 +6,15 @@
       </div>
     </h1>
 
+    <h2>
+      <div ng-if = "vm.error">
+	{{vm.errorMessage}}
+	<button ng-click="vm.dismissErrorMessage()" class="btn btn-primary btn-raised">
+	  <span> Dismiss </span>
+	</button>
+      </div>
+    </h2>
+
     <div class="well">
 
       <svg ng-attr-height="{{vm.graph.height}}" ng-attr-width="{{vm.graph.width}}">

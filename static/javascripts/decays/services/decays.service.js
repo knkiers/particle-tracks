@@ -415,10 +415,21 @@
 	    var vList = [];
 	    var nMax = data.x.length;
 	    var i;
+	    var circleData;
+
+	    if (nMax < 3 ) {
+		circleData = {xc: 0, yc: 0, r: 0,
+			      error: true,
+			      errorMessage: 'You must choose at least three points.'
+			     };
+		return circleData;
+	    }
+	    
 	    for (i=0; i < nMax; i++) {
 		uList.push(data.x[i] - xBar);
 		vList.push(data.y[i] - yBar);
 	    }
+	    
 	    var Suu =  SCalculator([uList, uList]);
 	    var Svv =  SCalculator([vList, vList]);
 	    var Suv =  SCalculator([uList, vList]);
@@ -428,14 +439,21 @@
 	    var Svuu = SCalculator([vList, uList, uList]);
 	    
 	    var mInv = inverseTwoByTwo([[Suu, Suv], [Suv, Svv]]);
-	    var coeffs = [(Suuu+Suvv)/2, (Svvv+Svuu)/2];
-	    var uc = mInv[0][0]*coeffs[0]+mInv[0][1]*coeffs[1];
-	    var vc = mInv[1][0]*coeffs[0]+mInv[1][1]*coeffs[1];
-	    var xc = uc + xBar;
-	    var yc = vc + yBar;
-	    var r = Math.sqrt(uc*uc + vc*vc + (Suu+Svv)/nMax);
-
-	    var circleData = {xc: xc, yc: yc, r: r};
+	    if (mInv.error) {
+		circleData = {xc: 0, yc: 0, r: 0,
+			      error: true,
+			      errorMessage: 'You must choose non-colinear points.'
+			     };
+	    } else {
+		var inverseMatrix = mInv.inverse;
+		var coeffs = [(Suuu+Suvv)/2, (Svvv+Svuu)/2];
+		var uc = inverseMatrix[0][0]*coeffs[0]+inverseMatrix[0][1]*coeffs[1];
+		var vc = inverseMatrix[1][0]*coeffs[0]+inverseMatrix[1][1]*coeffs[1];
+		var xc = uc + xBar;
+		var yc = vc + yBar;
+		var r = Math.sqrt(uc*uc + vc*vc + (Suu+Svv)/nMax);
+		circleData = {xc: xc, yc: yc, r: r, error: false, errorMessage: ''};
+	    }
 	    return circleData;	    
 	}
 
@@ -474,13 +492,29 @@
 	 */
 	function inverseTwoByTwo(matrix) {
 	    var a,b,c,d;
+	    var eps = 0.000000001;
+	    var error = false;
+	    var returnObject;
 	    a = matrix[0][0];
 	    b = matrix[0][1];
 	    c = matrix[1][0];
 	    d = matrix[1][1];
 	    var det = a*d - b*c;
-	    var inverse = [[d/det, -b/det],[-c/det, a/det]];
-	    return inverse;
+	    if (Math.abs(det) < eps) {
+		returnObject = {
+		    error: true,
+		    inverse: 0
+		};
+		return returnObject;
+	    } else {
+		var inverse = [[d/det, -b/det],[-c/det, a/det]];
+		returnObject = {
+		    error: false,
+		    inverse: inverse
+		};
+		return returnObject;
+	    }
+	    
 	}
 	
     }
