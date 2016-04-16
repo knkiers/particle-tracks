@@ -31,6 +31,13 @@
 		  ng-attr-r="{{dot.activated ? '2' : '1' }}" stroke="black" stroke-width="0"
 		  ng-attr-fill="{{dot.useForFit ? 'red' : 'grey' }}" />
 	</g>
+
+	<g ng-repeat="circle in vm.circles">
+	  <circle ng-attr-cx="{{circle.xcPx}}" ng-attr-cy="{{circle.ycPx}}"
+		  ng-attr-r="{{circle.rPx}}" stroke="black" stroke-width="2"
+		  fill="none" />
+	</g>
+	
       </svg>
 
       
@@ -50,6 +57,10 @@
     <button ng-click="vm.toggleColourErase()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">
       <span ng-if="vm.colourMode"> Erase </span>
       <span ng-if="!vm.colourMode"> Colour </span>
+    </button>
+
+    <button ng-click="vm.fitCircleToData()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">
+      <span> Fit Circle </span>
     </button>
     
   </div>

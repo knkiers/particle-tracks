@@ -56,7 +56,8 @@
 	    curvedPathParams: curvedPathParams,
 	    boundaryIntersectionAngle: boundaryIntersectionAngle,
 	    getStringEventDisplay: getStringEventDisplay,
-	    translatecmtoPixels: translatecmtoPixels
+	    translatecmtoPixels: translatecmtoPixels,
+	    translateCircleDatatoPixels: translateCircleDatatoPixels
 	};
 
 	return Display;
@@ -231,6 +232,12 @@
 	    return lineString;
 	}
 
+	function translateCircleDatatoPixels(circleDatacm, boundaries) {
+	    var center = translatecmtoPixels(circleDatacm.xc, circleDatacm.yc, boundaries);
+	    var r = translateRadiuscmtoPixels(circleDatacm.r, boundaries);
+	    var circleDataPx = {xcPx: center.x, ycPx: center.y, rPx: r};
+	    return circleDataPx;
+	}
 	
 	function translatecmtoPixels(x, y, boundaries) {
 	    var xPx = boundaries.xminPx +
@@ -365,6 +372,8 @@
      */
     function AnalyzeEvent() {
 	var Analysis = {
+	    circleFitter:       circleFitter,
+	    gatherDataFromDots: gatherDataFromDots
 	};
 
 	return Analysis;
@@ -372,13 +381,108 @@
 	////////////////////
 
 	/*
-	 * @name 
+	 * looks at the 'dots' array and determines which have been selected for fitting a circle
+	 * returns a data list suitable for sending to circleFitter
+	 */
+	function gatherDataFromDots(dots, boundaries) {
+	    var xArray = [];
+	    var yArray = [];
+	    var i;
+	    for (i=0; i<dots.length; i++) {
+		if (dots[i].useForFit == true) {
+		    xArray.push(dots[i].xcm);
+		    yArray.push(dots[i].ycm);
+		}
+	    }
+	    var circleInputData = {
+		x: xArray,
+		y: yArray
+	    }
+	    return circleInputData;
+	}
+	
+	/*
+	 * @name circleFitter
+	 * @input data has two lists: data.x and data.y
+	 * @returns (x0, y0) and r (in cm) for the best-fit circle
+	 * ADD SOME ERROR CHECKING!!!!  Need to check for colinear points, and that N >= 3.
 	 *
 	 */
+	function circleFitter(data) {
+	    var xBar = mean(data.x);
+	    var yBar = mean(data.y);
+	    var uList = [];
+	    var vList = [];
+	    var nMax = data.x.length;
+	    var i;
+	    for (i=0; i < nMax; i++) {
+		uList.push(data.x[i] - xBar);
+		vList.push(data.y[i] - yBar);
+	    }
+	    var Suu =  SCalculator([uList, uList]);
+	    var Svv =  SCalculator([vList, vList]);
+	    var Suv =  SCalculator([uList, vList]);
+	    var Suuu = SCalculator([uList, uList, uList]);
+	    var Svvv = SCalculator([vList, vList, vList]);
+	    var Suvv = SCalculator([uList, vList, vList]);
+	    var Svuu = SCalculator([vList, uList, uList]);
+	    
+	    var mInv = inverseTwoByTwo([[Suu, Suv], [Suv, Svv]]);
+	    var coeffs = [(Suuu+Suvv)/2, (Svvv+Svuu)/2];
+	    var uc = mInv[0][0]*coeffs[0]+mInv[0][1]*coeffs[1];
+	    var vc = mInv[1][0]*coeffs[0]+mInv[1][1]*coeffs[1];
+	    var xc = uc + xBar;
+	    var yc = vc + yBar;
+	    var r = Math.sqrt(uc*uc + vc*vc + (Suu+Svv)/nMax);
 
-	
-	
+	    var circleData = {xc: xc, yc: yc, r: r};
+	    return circleData;	    
+	}
 
+	function mean(list) {
+	    var total = 0;
+	    var i;
+	    for (i=0; i<list.length; i++) {
+		total += list[i];
+	    }
+	    return total/list.length;	
+	}
+
+	/*
+	 * listOfLists could be [uList, uList, vList], for example
+	 *
+	 */
+	function SCalculator(listOfLists) {
+	    var numLists = listOfLists.length;
+	    var i, j;
+	    var sublistLengths = listOfLists[0].length; //they'd better be the same length!
+	    var total = 0;
+	    var product;
+	    for (j=0; j < sublistLengths; j++){
+		product = 1;
+		for (i=0; i < numLists; i++){
+		    product = product*listOfLists[i][j];
+		}
+		total += product;
+	    }
+	    return total;
+	}
+
+	/*
+	 * MUST CHECK FIRST that the matrix is invertible!!!
+	 *
+	 */
+	function inverseTwoByTwo(matrix) {
+	    var a,b,c,d;
+	    a = matrix[0][0];
+	    b = matrix[0][1];
+	    c = matrix[1][0];
+	    d = matrix[1][1];
+	    var det = a*d - b*c;
+	    var inverse = [[d/det, -b/det],[-c/det, a/det]];
+	    return inverse;
+	}
+	
     }
     
 })();

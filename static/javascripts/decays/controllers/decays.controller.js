@@ -23,12 +23,12 @@
 	.module('thinkster.decays.controllers',['ngSanitize'])
 	.controller('EventController', EventController);
     
-    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication', 'DisplayEvent'];
+    EventController.$inject = ['$cookies','$scope', '$location', 'GenerateEvent', 'Authentication', 'DisplayEvent', 'AnalyzeEvent'];
 
     /**
      * @namespace EventController
      */
-    function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent) {
+    function EventController($cookies, $scope, $location, GenerateEvent, Authentication, DisplayEvent, AnalyzeEvent) {
 	var vm = this;
 
 	vm.boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
@@ -52,52 +52,27 @@
 	}
 
 	vm.colourMode = true;
-/*	vm.dots =
-	    [
-		{
-		    index:     0,
-		    activated: false,
-		    x:         100,
-		    y:         100,
-		    useForFit: false,
-		},
-		{
-		    index:     1,
-		    activated: true,
-		    x:         200,
-		    y:         100,
-		    useForFit: false,
-		},
-		{
-		    index:     2,
-		    activated: true,
-		    x:         300,
-		    y:         100,
-		    useForFit: false,
-		}
-	    ];
-	
-*/
-	
-
-
-	
 
 	// function that takes these things, as well as the momentum, computes beginning and ending point, radius, etc.
 	
 	vm.eventGenerated = false;
 
 	initializeGrid();
-	activate();
 
+	vm.circles = [];
+	
+	activate();
 	//vm.d = DisplayEvent.pathParams(170, boundaries, interactionLocation, 0, 120, 'ccw', 'outgoing');
 
+	var circleInputData = {
+	    x: [0, 0.5, 1, 1.5, 2, 2.5, 3, 0, -20, -10, -10],
+	    y: [0, 0.25, 1, 2.25, 4, 6.25, 9, 15, 11, -4, 18]
+	}
 	
-	
+	var circleData = AnalyzeEvent.circleFitter(circleInputData);
 
 	vm.graph = {'width': 500, 'height': 500};
 
-	//vm.d = "M10 315 L 110 215 A 30 50 0 0 1 162.55 162.45 L 172.55 152.45 A 30 50 -45 0 1 215.1 109.9 L 315 10"
 
 	/**
 	 * @name generateEvent
@@ -120,6 +95,13 @@
 
 	}
 
+	vm.fitCircleToData = function() {
+	    var circleInputData = AnalyzeEvent.gatherDataFromDots(vm.dots, vm.boundaries);
+	    var circleDatacm = AnalyzeEvent.circleFitter(circleInputData);
+	    var circleDataPx = DisplayEvent.translateCircleDatatoPixels(circleDatacm, vm.boundaries);
+	    vm.circles.push(circleDataPx);
+	}
+	
 	vm.checkDot = function(index) {
 	    if (vm.dots[index].activated) {
 		if (vm.colourMode) {
@@ -151,6 +133,8 @@
 			    activated: true,
 			    x:         coordsPx.x,
 			    y:         coordsPx.y,
+			    xcm:       x,
+			    ycm:       y,
 			    useForFit: false,
 			}
 		    );
@@ -252,6 +236,7 @@
 		vm.colourMode = true;
 	    }
 	}
+
     }
 
 })();
