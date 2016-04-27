@@ -52,25 +52,65 @@
       
       
       <div ng-if = "vm.eventGenerated">
-	{{vm.d}}
-
 	B = {{vm.bFieldStrength}} kG
-
 	B is {{vm.bFieldDirection}}
-
       </div>
-
-      <div> {{vm.d}} </div>
     </div>
     <button ng-click="vm.generateEvent()" class="btn btn-primary btn-raised btn-add-generate-event">Generate New Event</button>
-    <button ng-click="vm.toggleColourErase()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">
+    <button ng-click="vm.toggleColourErase()" class="btn btn-primary btn-raised">
       <span ng-if="vm.colourMode"> Erase </span>
       <span ng-if="!vm.colourMode"> Colour </span>
     </button>
-
-    <button ng-click="vm.fitCircleToData()" class="btn btn-primary btn-raised btn-add-toggle-B-dirn">
-      <span> Fit Circle </span>
-    </button>
+    <div ng-if = "vm.instruction">
+      <span>{{vm.instructionMessage}}</span>
+    </div>
+    <div ng-if = "! vm.fitCircleButton">
+      <button ng-click="vm.addCircle()" class="btn btn-primary btn-raised">
+	<span> Add a Circle </span>
+      </button>
+    </div>
+    <div ng-if = "vm.fitCircleButton">
+      <button ng-click="vm.fitCircleToData()" class="btn btn-primary btn-raised">
+	<span> Fit Circle </span>
+      </button>
+    </div>
     
   </div>
 </div>
+
+<div class = "row">
+  <div class="col-md-2 col-md-offset-1">
+    radius (cm)
+  </div>
+  <div class="col-md-2">
+    CW/CCW
+  </div>
+  <div class="col-md-2">
+    incoming/outgoing
+  </div>
+</div>
+
+
+<g ng-repeat="circle in vm.circles">
+  <div class = "row">
+    <div class="col-md-2 col-md-offset-1">
+      {{circle.r}}
+    </div>
+    <div class="col-md-2">
+      <div ng-if = "circle.CW">
+	clockwise
+      </div>
+      <div ng-if = "! circle.CW">
+	counter-clockwise
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div ng-if = "circle.incoming">
+	incoming
+      </div>
+      <div ng-if = "! circle.incoming">
+	outgoing
+      </div>
+    </div>
+  </div>
+</g>

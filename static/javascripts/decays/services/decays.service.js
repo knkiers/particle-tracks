@@ -12,9 +12,7 @@
 	.factory('AnalyzeEvent', AnalyzeEvent);
 
     GenerateEvent.$inject = ['$http'];
-
-
-
+ 
     
     /**
      * @namespace thinkster.decays.services
@@ -235,7 +233,16 @@
 	function translateCircleDatatoPixels(circleDatacm, boundaries) {
 	    var center = translatecmtoPixels(circleDatacm.xc, circleDatacm.yc, boundaries);
 	    var r = translateRadiuscmtoPixels(circleDatacm.r, boundaries);
-	    var circleDataPx = {xcPx: center.x, ycPx: center.y, rPx: r};
+	    var circleDataPx = {
+		xcPx: center.x,
+		ycPx: center.y,
+		rPx:  r,
+		xc:   circleDatacm.xc,
+		yc:   circleDatacm.yc,
+		r:    circleDatacm.r,
+		CW:   true,
+		incoming: true
+	    };
 	    return circleDataPx;
 	}
 	
@@ -366,18 +373,88 @@
 	
     }
 
-        /**
+    /**
      * @namespace thinkster.decays.services
      * @returns {Factory}
      */
-    function AnalyzeEvent() {
+    function AnalyzeEvent(DisplayEvent) {
 	var Analysis = {
 	    circleFitter:       circleFitter,
-	    gatherDataFromDots: gatherDataFromDots
+	    gatherDataFromDots: gatherDataFromDots,
+	    initializeGrid:     initializeGrid,
+	    fitCircleToData:    fitCircleToData
 	};
 
 	return Analysis;
 
+	function initializeGrid(boundaries) {
+
+	    var deltaX = (boundaries.xmax-boundaries.xmin)/(boundaries.numGridPointsX-1);
+	    var deltaY = (boundaries.ymax-boundaries.ymin)/(boundaries.numGridPointsY-1);
+
+	    var grid = [];
+
+	    var x, y;
+	    var i, j, coordsPx;
+	    var index = 0;
+	    for (j=0; j<boundaries.numGridPointsY; j++) {
+		for (i=0; i<boundaries.numGridPointsX; i++) {
+		    x = boundaries.xmin + i*deltaX;
+		    y = boundaries.ymin + j*deltaY;
+		    coordsPx = DisplayEvent.translatecmtoPixels(x, y, boundaries);
+		    grid.push(
+			{
+			    index:     index,
+			    activated: true,
+			    x:         coordsPx.x,
+			    y:         coordsPx.y,
+			    xcm:       x,
+			    ycm:       y,
+			    useForFit: false,
+			}
+		    );
+		    index++;
+		}
+	    }
+	    return grid;
+	}
+
+	function fitCircleToData(dots, circles, boundaries) {
+	    var circleInputData = gatherDataFromDots(dots, boundaries);
+	    
+	    var circleDatacm = circleFitter(circleInputData);
+	    var error = false;
+	    var errorMessage = '';
+	    var dataDict;
+	    if (circleDatacm.error) {
+		errorMessage = circleDatacm.errorMessage;
+		error = true;
+	    } else {
+		var circleDataPx = DisplayEvent.translateCircleDatatoPixels(circleDatacm, boundaries);
+		circles.push(circleDataPx);
+	    }
+	    dataDict = {
+		circles:      circles,
+		error:        error,
+		errorMessage: errorMessage
+	    };
+	    return dataDict;
+	}
+
+	
+	function clearActivatedDots(dots) {
+	    for (i=0; i<dots.length; i++) {
+		dots[i].useForFit = false;
+		dots[i].activated = false;
+	    }	
+	}
+
+	function clearDotsForFit(dots) {
+	    for (i=0; i<dots.length; i++) {
+		dots[i].useForFit = false;
+	    }	
+	}
+	
 	////////////////////
 
 	/*

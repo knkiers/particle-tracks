@@ -35,6 +35,9 @@
 
 	vm.error = false;
 	vm.errorMessage = '';
+	vm.instruction = false;
+	vm.instructionMessage = '';
+	vm.fitCircleButton = false;
 	
 	vm.boundaries = { // very important that the x and y directions preserve the aspect ratio!!!
 	    xmin: -5, // cm; boundaries of the display region
@@ -62,7 +65,7 @@
 	
 	vm.eventGenerated = false;
 
-	initializeGrid();
+	vm.dots = AnalyzeEvent.initializeGrid(vm.boundaries);
 
 	vm.circles = [];
 	
@@ -101,19 +104,17 @@
 	}
 
 	vm.fitCircleToData = function() {
-	    var circleInputData = AnalyzeEvent.gatherDataFromDots(vm.dots, vm.boundaries);
-	    
-	    var circleDatacm = AnalyzeEvent.circleFitter(circleInputData);
-	    if (circleDatacm.error) {
-		vm.errorMessage = circleDatacm.errorMessage;
-		vm.error = true;
-	    } else {
-		var circleDataPx = DisplayEvent.translateCircleDatatoPixels(circleDatacm, vm.boundaries);
-		vm.circles.push(circleDataPx);
+	    var dataDict = AnalyzeEvent.fitCircleToData(vm.dots, vm.circles, vm.boundaries);
+	    vm.circles = dataDict.circles;
+	    vm.error = dataDict.error;
+	    vm.errorMessage = dataDict.errorMessage;
+	    if (!vm.error) {
+		vm.instruction = false;
+		vm.fitCircleButton = false;
 	    }
-	    
 	}
-	
+
+	// might eventually want to move this to the service, too, but might also delete it, so leave it for now
 	vm.checkDot = function(index) {
 	    if (vm.dots[index].activated) {
 		if (vm.colourMode) {
@@ -128,42 +129,6 @@
 	    vm.errorMessage = '';
 	    vm.error = false;
 	}
-
-	function initializeGrid() {
-
-	    var deltaX = (vm.boundaries.xmax-vm.boundaries.xmin)/(vm.boundaries.numGridPointsX-1);
-	    var deltaY = (vm.boundaries.ymax-vm.boundaries.ymin)/(vm.boundaries.numGridPointsY-1);
-
-	    vm.dots = [];
-
-	    var x, y;
-	    var i, j, coordsPx;
-	    var index = 0;
-	    for (j=0; j<vm.boundaries.numGridPointsY; j++) {
-		for (i=0; i<vm.boundaries.numGridPointsX; i++) {
-		    x = vm.boundaries.xmin + i*deltaX;
-		    y = vm.boundaries.ymin + j*deltaY;
-		    coordsPx = DisplayEvent.translatecmtoPixels(x, y, vm.boundaries);
-		    vm.dots.push(
-			{
-			    index:     index,
-			    activated: true,
-			    x:         coordsPx.x,
-			    y:         coordsPx.y,
-			    xcm:       x,
-			    ycm:       y,
-			    useForFit: false,
-			}
-		    );
-		    index++;
-		}
-
-
-	    }
-
-	}
-	
-
 	
 	/**
 	 * @name activate
@@ -252,6 +217,12 @@
 	    } else {
 		vm.colourMode = true;
 	    }
+	}
+
+	vm.addCircle = function() {
+	    vm.instructionMessage = 'Select several points, then click Fit Circle';
+	    vm.instruction = true;
+	    vm.fitCircleButton = true;
 	}
 
 
