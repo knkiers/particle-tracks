@@ -50,6 +50,7 @@
 	    xmaxPx: 450, // pixels
 	    yminPx: 450, // pixels; yminPx is at the bottom of the plot region
 	    ymaxPx: 50, // pixels
+	    deltaR: 0.1 // cm; radial distance from a track within which a "dot" in the grid will be activated
 	}
 
 	var interactionRegion = {// this is the region within which the interaction point can occur
@@ -179,6 +180,7 @@
 
 	    vm.d = DisplayEvent.getStringEventDisplay(vm.bFieldStrength,
 						      vm.bFieldDirection,
+						      vm.dots,
 						      vm.boundaries,
 						      vm.interactionLocation,
 						      vm.event);
