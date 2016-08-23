@@ -37,8 +37,9 @@
 	<path ng-attr-d = "{{vm.d.outNeutral}}" stroke="grey" stroke-dasharray = "10, 5" stroke-width="3" />
 	<g ng-repeat="dot in vm.dots">
 	  <circle ng-mouseover="vm.checkDot(dot.index)" ng-attr-cx="{{dot.x}}" ng-attr-cy="{{dot.y}}"
-		  ng-attr-r="{{dot.activated ? '2' : '1' }}" stroke="black" stroke-width="0"
-		  ng-attr-fill="{{dot.useForFit ? 'red' : 'grey' }}" />
+		  ng-attr-r="{{dot.activated ? '4' : '0.5' }}" stroke="red"
+		  ng-attr-stroke-width="{{dot.useForFit ? '2': '0' }}"
+		  ng-attr-fill="{{dot.useForFit ? 'grey' : 'grey' }}" />
 	</g>
 
 	<g ng-repeat="circle in vm.circles">
@@ -77,6 +78,18 @@
     
   </div>
 </div>
+
+
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <div class="togglebutton">
+            <label>
+                <input type="checkbox" checked> Toggle button
+            </label>
+        </div>
+    </div>
+</div>
+
 
 <div class = "row">
   <div class="col-md-2 col-md-offset-1">

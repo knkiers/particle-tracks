@@ -68,7 +68,9 @@
 	 */
 
 	
-	function getStringEventDisplay(bFieldStrength, bFieldDirection, dots, boundaries, interactionLocation, event){
+	function getStringEventDisplay(bFieldStrength, bFieldDirection,
+								   dots, boundaries, interactionLocation,
+								   event){
 
 	    var inChargedString = '';
 	    var inNeutralString = '';

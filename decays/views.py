@@ -45,7 +45,7 @@ def generate_random_event(request):
     print b_direction
 
     xi_min = 0.05
-    xi_max = 0.8
+    xi_max = 0.3
     xi_lab = random.random()*(xi_max-xi_min)+xi_min
 
     theta_min = 0.25

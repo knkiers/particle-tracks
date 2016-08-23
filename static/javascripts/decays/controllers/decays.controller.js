@@ -12,6 +12,11 @@
  *             - conditionals with attributes:
  *               http://stackoverflow.com/questions/22049824/conditionally-adding-data-attribute-in-angular-directive-template
  *
+ *  MODALS!!!! 
+ *    - one option: http://www.dwmkerr.com/the-only-angularjs-modal-service-youll-ever-need/
+ *    - another: https://github.com/likeastore/ngDialog#ngdialog
+ *    - native angular one(?): https://material.angularjs.org/latest/demo/dialog
+ *
  * ISSUES: - when toggling B field, need to somehow adjust the event, too; in particular, if there is a chained
  *           event, everything will be messed up.  maybe just need to do a simple reversal of some sort...(?)
  * IDEAS:  - should think about using django's session object to store b_field and b_direction, instead of the cookie
